@@ -162,14 +162,14 @@ async def restart_bot(interaction: discord.Interaction):
     await interaction.response.send_message(
         f"Restarting bot... (requested by {user.mention})", ephemeral=True
     )
-    print(f"Bot restart requested by {user.name} ({user.id})")
+    print(f"Bot restarting...)")
 
     # Give Discord time to send the response before shutting down
     await asyncio.sleep(2)
 
     # Restart the systemd service
     os.system("sudo systemctl restart discordbot")
-    
+
 @bot.event
 async def setup_hook():
     bot.tree.add_command(set_verify_role)
