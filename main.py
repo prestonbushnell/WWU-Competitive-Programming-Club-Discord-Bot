@@ -171,7 +171,7 @@ async def setup_hook():
     bot.tree.add_command(set_verify_message)
     bot.tree.add_command(set_verify_emoji)
     bot.tree.add_command(restart_bot)
-    await bot.tree.sync()
+    await bot.tree.sync(guild=discord.Object(id=947639896292606013))
     print("Slash commands synced")
 
 # Run the bot
