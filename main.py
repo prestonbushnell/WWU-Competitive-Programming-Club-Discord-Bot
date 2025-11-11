@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 import logging
-import json, os
+import json, os, asyncio
 from dotenv import load_dotenv
 from datetime import datetime, timezone, timedelta
 
@@ -55,6 +55,7 @@ async def on_ready():
 
 @bot.event
 async def on_member_join(member):
+    # Auto-kick accounts newer than 7 days
     account_age = datetime.now(timezone.utc) - member.created_at
     if account_age < timedelta(days=7):
         try:
@@ -62,38 +63,15 @@ async def on_member_join(member):
             print(f"Kicked suspicious account {member}")
         except discord.Forbidden:
             print(f"Failed to kick account {member}")
-
-@bot.event
-async def on_raw_reaction_add(payload):
-    # Ignore bot reactions
-    if payload.user_id == bot.user.id:
-        return
-
-    role_id = settings.get("role_id")
-    message_id = settings.get("verify_message_id")
-    emoji = settings.get("emoji", "✅")
-
-    if not role_id or not message_id:
-        return
-
-    # Check if reaction matches the verification message and emoji
-    if payload.message_id == message_id and str(payload.emoji) == emoji:
-        guild = bot.get_guild(payload.guild_id)
-        if guild is None:
-            return
-
-        role = guild.get_role(role_id)
-        member = guild.get_member(payload.user_id)  # <-- always fetch the reacting member
-
-        if member and role:
-            try:
-                await member.add_roles(role, reason="User verified via reaction")
-                print(f"Assigned {role.name} to {member.display_name}")
-            except discord.Forbidden:
-                print(f"Failed to assign {role.name} to {member.display_name}: missing permissions.")
-            except Exception as e:
-                print(f"Error assigning role: {e}")
-
+    # DM welcome message
+    try:
+        await member.send(
+            "Welcome to the WWU Competitive Programming Club Server! Please make sure to check out <#947639896292606016> and click the ✅ to gain access to the rest of the server."
+        )
+        print(f"Sent a welcome DM to {member.name}")
+    except discord.Forbidden:
+        print(f"Unable to DM {member.name}")
+    
 @bot.event
 async def on_raw_reaction_add(payload):
     # Ignore the bot’s own reactions
@@ -174,11 +152,25 @@ async def set_verify_emoji(interaction: discord.Interaction, emoji: str):
     save_settings(settings)
     await interaction.response.send_message(f"Verification emoji set to {emoji}", ephemeral=True)
 
+# Reset bot on server side
+@discord.app_commands.command(name="restart_bot", description="Restart the bot service on the server.")
+@commands.has_permissions(administrator=True)
+async def restart_bot(interaction: discord.Interaction):
+    await interaction.followup.send("Restarting in 3 seconds...", ephemeral=True)
+    await asyncio.sleep(3)
+    try:
+        # Restart the systemd service
+        os.system("sudo systemctl restart discordbot")
+        print("Bot restart command issued.")
+    except Exception as e:
+        print(f"Error while trying to restart: {e}")
+
 @bot.event
 async def setup_hook():
     bot.tree.add_command(set_verify_role)
     bot.tree.add_command(set_verify_message)
     bot.tree.add_command(set_verify_emoji)
+    bot.tree.add_command(restart_bot)
     await bot.tree.sync()
     print("Slash commands synced")
 
