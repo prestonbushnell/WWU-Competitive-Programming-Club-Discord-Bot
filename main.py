@@ -156,15 +156,20 @@ async def set_verify_emoji(interaction: discord.Interaction, emoji: str):
 @discord.app_commands.command(name="restart_bot", description="Restart the bot service on the server.")
 @commands.has_permissions(administrator=True)
 async def restart_bot(interaction: discord.Interaction):
-    await interaction.followup.send("Restarting in 3 seconds...", ephemeral=True)
-    await asyncio.sleep(3)
-    try:
-        # Restart the systemd service
-        os.system("sudo systemctl restart discordbot")
-        print("Bot restart command issued.")
-    except Exception as e:
-        print(f"Error while trying to restart: {e}")
+    user = interaction.user
 
+    # Respond privately so others can't see
+    await interaction.response.send_message(
+        f"Restarting bot... (requested by {user.mention})", ephemeral=True
+    )
+    print(f"Bot restart requested by {user.name} ({user.id})")
+
+    # Give Discord time to send the response before shutting down
+    await asyncio.sleep(2)
+
+    # Restart the systemd service
+    os.system("sudo systemctl restart discordbot")
+    
 @bot.event
 async def setup_hook():
     bot.tree.add_command(set_verify_role)
