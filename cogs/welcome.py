@@ -40,12 +40,12 @@ class Welcome(commands.Cog):
 
         # If there's no entry → leave
         if entry is None:
-            await send_log(self.bot, f"👋 **{member}** left the server.")
+            await send_log(self.bot, f"{member} left the server.")
             return
 
         # If the entry is older than 3 seconds - leave
         if (discord.utils.utcnow() - entry.created_at).total_seconds() > 3:
-            await send_log(self.bot, f"👋 **{member}** left the server.")
+            await send_log(self.bot, f"{member} left the server.")
             return
 
         # If the kick entry is NOT for this user - leave
@@ -58,6 +58,35 @@ class Welcome(commands.Cog):
             self.bot,
             f"{member} was kicked by {entry.user}."
         )
+
+    @commands.Cog.listener()
+    async def on_message_delete(self, message: discord.Message):
+        # Ignore bot messages
+        if message.author.bot:
+            return
+
+        # Get the log channel ID from settings
+        log_channel_id = self.bot.settings.get("log_channel_id")
+        if not log_channel_id:
+            return  # Logging not configured yet
+
+        # Ignore deletes inside the log channel itself
+        if message.channel.id == log_channel_id:
+            return
+
+        # Build log entry
+        content = message.content or "*no text (possibly an embed or attachment)*"
+        author = f"{message.author} (`{message.author.id}`)"
+        channel = f"<#{message.channel.id}>"
+
+        log_text = (
+            f"**Message Deleted**\n"
+            f"**Author:** {author}\n"
+            f"**Channel:** {channel}\n"
+            f"**Content:**\n{content}"
+        )
+
+        await send_log(self.bot, log_text)
 
 async def setup(bot):
     await bot.add_cog(Welcome(bot))
