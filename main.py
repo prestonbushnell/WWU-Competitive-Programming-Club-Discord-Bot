@@ -1,9 +1,11 @@
 import discord
+from discord import TextChannel, Thread
 from discord.ext import commands
 import logging
 import json, os, asyncio
 from dotenv import load_dotenv
 from datetime import datetime, timezone, timedelta
+from typing import cast
 
 # Always use the directory where this script lives
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -129,7 +131,7 @@ async def set_verify_message(interaction: discord.Interaction, message_id: str):
     # Attempt to react to the message with the configured emoji
     emoji = settings.get("emoji", "✅")
     try:
-        channel = interaction.channel
+        channel = cast(TextChannel | Thread, interaction.channel)
         message = await channel.fetch_message(int(message_id))
         await message.add_reaction(emoji)
         await interaction.response.send_message(
