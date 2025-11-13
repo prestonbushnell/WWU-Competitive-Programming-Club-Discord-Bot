@@ -30,17 +30,34 @@ class Welcome(commands.Cog):
         
     @commands.Cog.listener()
     async def on_member_remove(self, member: discord.Member):
-        
-        await asyncio.sleep(1)
-
         guild = member.guild
-        async for entry in guild.audit_logs(limit=1, action=discord.AuditLogAction.kick):
-            if entry.target and entry.target.id == member.id:
-                await send_log(self.bot, f"{member} was kicked by {entry.user}.")
-                return
+        entry = None
 
-        # If not kicked or banned, treat as voluntary leave
-        await send_log(self.bot, f"👋{member} left the server.")
+        # Fetch the most recent kick log entry
+        async for log in guild.audit_logs(limit=1, action=discord.AuditLogAction.kick):
+            entry = log
+            break
+
+        # If there's no entry → leave
+        if entry is None:
+            await send_log(self.bot, f"👋 **{member}** left the server.")
+            return
+
+        # If the entry is older than 3 seconds - leave
+        if (discord.utils.utcnow() - entry.created_at).total_seconds() > 3:
+            await send_log(self.bot, f"👋 **{member}** left the server.")
+            return
+
+        # If the kick entry is NOT for this user - leave
+        if entry.target.id != member.id: # type: ignore
+            await send_log(self.bot, f"{member} left the server.")
+            return
+
+        # Otherwise - kick
+        await send_log(
+            self.bot,
+            f"{member} was kicked by {entry.user}."
+        )
 
 async def setup(bot):
     await bot.add_cog(Welcome(bot))
