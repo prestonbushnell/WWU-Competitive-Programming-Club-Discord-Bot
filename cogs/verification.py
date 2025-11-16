@@ -59,7 +59,7 @@ class Verification(commands.Cog):
                 print("Role not found.")
                 return
             await member.add_roles(role, reason="User verified via reaction")
-            await send_log(self.bot, f"Assigned {role.name} role to {member.display_name}")
+            await send_log(self.bot, f"Assigned {role.name} role to {member.mention}")
         except Exception as e:
             await send_log(self.bot, f"Error assigning role: {e}")
 
