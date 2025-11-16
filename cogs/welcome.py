@@ -81,7 +81,7 @@ class Welcome(commands.Cog):
 
         log_text = (
             f"**Message Deleted**\n"
-            f"**Author:** {author}\n"
+            f"**Author:** <@{author}>\n"
             f"**Channel:** {channel}\n"
             f"**Content:**\n{content}"
         )
