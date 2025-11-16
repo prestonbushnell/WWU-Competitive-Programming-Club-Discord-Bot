@@ -76,12 +76,12 @@ class Welcome(commands.Cog):
 
         # Build log entry
         content = message.content or "*no text (possibly an embed or attachment)*"
-        author = f"{message.author} (`{message.author.id}`)"
+        author = f"{message.author.mention} (`{message.author.id}`)"
         channel = f"<#{message.channel.id}>"
 
         log_text = (
             f"**Message Deleted**\n"
-            f"**Author:** <@{author}>\n"
+            f"**Author:** {author}\n"
             f"**Channel:** {channel}\n"
             f"**Content:**\n{content}"
         )
