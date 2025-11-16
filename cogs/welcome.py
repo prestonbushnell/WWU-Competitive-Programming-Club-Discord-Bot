@@ -15,18 +15,18 @@ class Welcome(commands.Cog):
         if account_age < timedelta(days=7):
             try:
                 await member.kick(reason="Account too new.")
-                await send_log(self.bot, f"Kicked new account: {member}")
+                await send_log(self.bot, f"Kicked new account: {member.mention}")
                 return
             except discord.Forbidden:
-                await send_log(self.bot, f"Cannot kick {member}")
+                await send_log(self.bot, f"Cannot kick {member.mention}")
         try:
             await member.send(
                 "Welcome to the WWU Competitive Programming Club! "
                 "Please read <#947639896292606016> and click ✅ to verify."
             )
-            await send_log(self.bot, f"DM sent to {member.name}")
+            await send_log(self.bot, f"DM sent to {member.mention}")
         except discord.Forbidden:
-            await send_log(self.bot, f"Could not DM {member.name} (DMs closed)")
+            await send_log(self.bot, f"Could not DM {member.mention} (DMs closed)")
         
     @commands.Cog.listener()
     async def on_member_remove(self, member: discord.Member):
@@ -40,24 +40,22 @@ class Welcome(commands.Cog):
 
         # If there's no entry → leave
         if entry is None:
-            await send_log(self.bot, f"{member} left the server.")
+            await send_log(self.bot, f"{member.mention} left the server.")
             return
 
         # If the entry is older than 3 seconds - leave
         if (discord.utils.utcnow() - entry.created_at).total_seconds() > 3:
-            await send_log(self.bot, f"{member} left the server.")
+            await send_log(self.bot, f"{member.mention} left the server.")
             return
 
         # If the kick entry is NOT for this user - leave
         if entry.target.id != member.id: # type: ignore
-            await send_log(self.bot, f"{member} left the server.")
+            await send_log(self.bot, f"{member.mention} left the server.")
             return
 
         # Otherwise - kick
-        await send_log(
-            self.bot,
-            f"{member} was kicked by {entry.user}."
-        )
+        moderator = entry.user.mention if entry.user else "Unknown Moderator"
+        await send_log(self.bot, f"{member.mention} was kicked by {moderator}.")
 
     @commands.Cog.listener()
     async def on_message_delete(self, message: discord.Message):
