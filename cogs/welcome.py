@@ -31,31 +31,23 @@ class Welcome(commands.Cog):
     @commands.Cog.listener()
     async def on_member_remove(self, member: discord.Member):
         guild = member.guild
-        entry = None
 
-        # Fetch the most recent kick log entry
+        # Check for bans
+        async for log in guild.audit_logs(limit=1, action=discord.AuditLogAction.ban):
+            if log.target.id == member.id and (discord.utils.utcnow() - log.created_at).total_seconds() <= 3:
+                moderator = log.user.mention if log.user else "Unknown Moderator"
+                await send_log(self.bot, f"{member.mention} was banned by {moderator}.")
+                return
+
+        # Check for kicks
         async for log in guild.audit_logs(limit=1, action=discord.AuditLogAction.kick):
-            entry = log
-            break
+            if log.target.id == member.id and (discord.utils.utcnow() - log.created_at).total_seconds() <= 3:
+                moderator = log.user.mention if log.user else "Unknown Moderator"
+                await send_log(self.bot, f"{member.mention} was kicked by {moderator}.")
+                return
 
-        # If there's no entry → leave
-        if entry is None:
-            await send_log(self.bot, f"{member.mention} left the server.")
-            return
-
-        # If the entry is older than 3 seconds - leave
-        if (discord.utils.utcnow() - entry.created_at).total_seconds() > 3:
-            await send_log(self.bot, f"{member.mention} left the server.")
-            return
-
-        # If the kick entry is NOT for this user - leave
-        if entry.target.id != member.id: # type: ignore
-            await send_log(self.bot, f"{member.mention} left the server.")
-            return
-
-        # Otherwise - kick
-        moderator = entry.user.mention if entry.user else "Unknown Moderator"
-        await send_log(self.bot, f"{member.mention} was kicked by {moderator}.")
+        # ----- Otherwise, they just left -----
+        await send_log(self.bot, f"{member.mention} left the server.")
 
     @commands.Cog.listener()
     async def on_message_delete(self, message: discord.Message):
