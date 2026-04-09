@@ -20,6 +20,7 @@ class Welcome(commands.Cog):
             except discord.Forbidden:
                 await send_log(self.bot, f"Cannot kick {member.mention}")
         try:
+            # TODO: Update to allow customization of channel ID
             await member.send(
                 "Welcome to the WWU Competitive Programming Club! "
                 "Please read <#947639896292606016> and click ✅ to verify."
