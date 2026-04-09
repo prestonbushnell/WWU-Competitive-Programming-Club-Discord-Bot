@@ -7,6 +7,7 @@ class Verification(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    # Sets the role assigned to users when reaction emoji is clicked
     @discord.app_commands.checks.has_permissions(administrator=True)
     @discord.app_commands.command(name="set_verify_role", description="Set the role given when users verify.")
     async def set_verify_role(self, interaction: discord.Interaction, role: discord.Role):
@@ -14,6 +15,7 @@ class Verification(commands.Cog):
         self.bot.save_settings(self.bot.settings)
         await interaction.response.send_message(f"Verification role set to {role.mention}", ephemeral=True)
 
+    # Sets message for bot to react to via message ID
     @discord.app_commands.checks.has_permissions(administrator=True)
     @discord.app_commands.command(name="set_verify_message", description="Set the message users should react to for verification.")
     async def set_verify_message(self, interaction: discord.Interaction, message_id: str):
@@ -31,6 +33,7 @@ class Verification(commands.Cog):
         except Exception as e:
             await interaction.response.send_message(f"Failed to react: {e}", ephemeral=True)
 
+    # Customize emoji bot uses for verification reaction
     @discord.app_commands.checks.has_permissions(administrator=True)
     @discord.app_commands.command(name="set_verify_emoji", description="Set the emoji used for verification.")
     async def set_verify_emoji(self, interaction: discord.Interaction, emoji: str):
