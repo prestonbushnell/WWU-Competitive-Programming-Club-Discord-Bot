@@ -79,5 +79,26 @@ class Welcome(commands.Cog):
 
         await send_log(self.bot, log_text)
 
+    @commands.Cog.listener()
+    async def on_raw_message_delete(self, payload: discord.RawMessageDeleteEvent):
+        # Skip if the message was cached — on_message_delete already handled it
+        if payload.cached_message is not None:
+            return
+
+        log_channel_id = self.bot.settings.get("log_channel_id")
+        if not log_channel_id:
+            return
+
+        if payload.channel_id == log_channel_id:
+            return
+
+        log_text = (
+            f"**Message Deleted** *(not in cache)*\n"
+            f"**Channel:** <#{payload.channel_id}>\n"
+            f"**Message ID:** {payload.message_id}"
+        )
+
+        await send_log(self.bot, log_text)
+
 async def setup(bot):
     await bot.add_cog(Welcome(bot))
