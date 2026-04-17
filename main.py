@@ -1,28 +1,51 @@
 import discord
 from discord.ext import commands
-import logging, os, json
+import logging, os
+import psycopg2
+from psycopg2.extras import RealDictCursor
 from dotenv import load_dotenv
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-SETTINGS_FILE = os.path.join(BASE_DIR, "settings.json")
-
-def load_settings():
-    if not os.path.exists(SETTINGS_FILE):
-        with open(SETTINGS_FILE, "w") as f:
-            json.dump({}, f)
-    with open(SETTINGS_FILE, "r") as f:
-        return json.load(f)
-
-def save_settings(data):
-    with open(SETTINGS_FILE, "w") as f:
-        json.dump(data, f, indent=4)
-
 load_dotenv()
+
 token = os.getenv("DISCORD_TOKEN")
 if not token:
     raise ValueError("DISCORD_TOKEN is not set in .env")
 
-settings = load_settings()
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise ValueError("DATABASE_URL is not set")
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# ── Database helpers ──────────────────────────────────────────────────────────
+
+def get_db():
+    return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
+
+def load_settings() -> dict:
+    with get_db() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS settings (
+                    key   TEXT PRIMARY KEY,
+                    value TEXT
+                )
+            """)
+            cur.execute("SELECT key, value FROM settings")
+            rows = cur.fetchall()
+            return {row["key"]: row["value"] for row in rows}
+
+def save_settings(data: dict):
+    with get_db() as conn:
+        with conn.cursor() as cur:
+            for key, value in data.items():
+                cur.execute("""
+                    INSERT INTO settings (key, value)
+                    VALUES (%s, %s)
+                    ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value
+                """, (key, str(value)))
+
+# ── Bot setup ─────────────────────────────────────────────────────────────────
 
 handler = logging.FileHandler(
     filename=os.path.join(BASE_DIR, "discord.log"),
@@ -33,23 +56,22 @@ handler = logging.FileHandler(
 intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True
-intents.messages = True 
+intents.messages = True
 
 bot = commands.Bot(command_prefix="/", intents=intents)
-bot.settings = settings  # type: ignore
-bot.save_settings = save_settings  # type: ignore
+bot.settings = load_settings()
+bot.save_settings = save_settings
 
 @bot.event
 async def setup_hook():
     guild = discord.Object(id=947639896292606013)
 
-    # Load cogs 
     await bot.load_extension("cogs.admin")
     await bot.load_extension("cogs.verification")
     await bot.load_extension("cogs.welcome")
 
     await bot.tree.sync(guild=guild)
-    print(f"Slash commands synced.")
+    print("Slash commands synced.")
 
 @bot.event
 async def on_ready():

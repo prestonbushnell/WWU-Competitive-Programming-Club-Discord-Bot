@@ -50,6 +50,8 @@ class Verification(commands.Cog):
         emoji = self.bot.settings.get("emoji", "✅")
         if not role_id or not message_id:
             return
+        role_id = int(role_id)
+        message_id = int(message_id)
         if payload.message_id != message_id or str(payload.emoji) != emoji:
             return
         guild = self.bot.get_guild(payload.guild_id)

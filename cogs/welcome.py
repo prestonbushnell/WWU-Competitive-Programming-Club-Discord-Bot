@@ -60,6 +60,7 @@ class Welcome(commands.Cog):
         log_channel_id = self.bot.settings.get("log_channel_id")
         if not log_channel_id:
             return  # Logging not configured yet
+        log_channel_id = int(log_channel_id)
 
         # Ignore deletes inside the log channel itself
         if message.channel.id == log_channel_id:
@@ -88,12 +89,13 @@ class Welcome(commands.Cog):
         log_channel_id = self.bot.settings.get("log_channel_id")
         if not log_channel_id:
             return
+        log_channel_id = int(log_channel_id)
 
         if payload.channel_id == log_channel_id:
             return
 
         log_text = (
-            f"**Message Deleted** *(not in cache)*\n"
+            f"**Message Deleted**\n"
             f"**Channel:** <#{payload.channel_id}>\n"
             f"**Message ID:** {payload.message_id}"
         )

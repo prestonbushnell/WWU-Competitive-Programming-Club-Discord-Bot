@@ -12,7 +12,7 @@ class Admin(commands.Cog):
     @discord.app_commands.checks.has_permissions(administrator=True)
     @discord.app_commands.command(name="set_log_channel", description="Set the channel for bot logs.")
     async def set_log_channel(self, interaction: discord.Interaction, channel: discord.TextChannel):
-        self.bot.settings["log_channel_id"] = channel.id
+        self.bot.settings["log_channel_id"] = channel.id  # int in memory
         self.bot.save_settings(self.bot.settings)
         await interaction.response.send_message(f"Log channel set to {channel.mention}.", ephemeral=True)
 

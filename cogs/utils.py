@@ -6,6 +6,7 @@ async def send_log(bot, message: str):
     if not log_channel_id:
         print(f"[LOG] {message}")
         return
+    log_channel_id = int(log_channel_id)
 
     channel = bot.get_channel(log_channel_id)
     if channel is None:
