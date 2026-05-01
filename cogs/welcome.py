@@ -2,7 +2,8 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 from datetime import datetime, timezone, timedelta
-from .utils import send_log
+from .utils import send_log, get_spam_messages
+from difflib import SequenceMatcher
 import asyncio
 
 class Welcome(commands.Cog):
@@ -49,6 +50,34 @@ class Welcome(commands.Cog):
 
         # ----- Otherwise, they just left -----
         await send_log(self.bot, f"{member.mention} left the server.")
+
+    @commands.Cog.listener()
+    async def on_message(self, message: discord.Message):
+        if message.author.bot:
+            return
+        if not message.guild:
+            return
+
+        spam_list = get_spam_messages()
+        for spam in spam_list:
+            ratio = SequenceMatcher(None, message.content.lower(), spam.lower()).ratio()
+            if ratio >= 0.85:
+                try:
+                    await message.delete()
+                    await message.guild.ban(
+                        message.author,
+                        reason=f"Known Spam",
+                        delete_message_seconds=604800
+                    )
+                    await send_log(
+                        self.bot,
+                        f"**Auto-banned** {message.author.mention} (`{message.author.id}`) for spam message in <#{message.channel.id}>\n"
+                        f"**Matched:** `{spam[:100]}`\n"
+                        f"**Similarity:** {ratio:.0%}"
+                    )
+                except discord.Forbidden:
+                    await send_log(self.bot, f"Could not ban {message.author.mention} — missing permissions.")
+                return
 
     @commands.Cog.listener()
     async def on_message_delete(self, message: discord.Message):

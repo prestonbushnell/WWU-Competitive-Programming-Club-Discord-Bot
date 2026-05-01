@@ -1,4 +1,6 @@
 import discord
+import psycopg2
+import os
 
 async def send_log(bot, message: str):
     log_channel_id = bot.settings.get("log_channel_id")
@@ -17,3 +19,10 @@ async def send_log(bot, message: str):
         await channel.send(message)
     except Exception as e:
         print(f"[LOG ERROR] Unable to send message to log channel: {e}")
+
+def get_spam_messages() -> list[str]:
+    conn = psycopg2.connect(os.getenv("DATABASE_URL"))
+    with conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT content FROM spam_messages")
+            return [row[0] for row in cur.fetchall()]

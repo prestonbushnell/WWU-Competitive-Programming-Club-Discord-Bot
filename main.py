@@ -31,6 +31,14 @@ def load_settings() -> dict:
                     value TEXT
                 )
             """)
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS spam_messages (
+                    id SERIAL PRIMARY KEY,
+                    content TEXT UNIQUE NOT NULL,
+                    added_by BIGINT,
+                    added_at TIMESTAMP DEFAULT NOW()
+                )
+            """)
             cur.execute("SELECT key, value FROM settings")
             rows = cur.fetchall()
             return {row["key"]: row["value"] for row in rows}
