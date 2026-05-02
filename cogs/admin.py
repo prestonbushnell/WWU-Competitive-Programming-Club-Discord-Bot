@@ -7,6 +7,7 @@ from .utils import send_log
 class Admin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        print("[DEBUG] Admin cog loaded")
 
     # Set server channel that bot will log to
     @discord.app_commands.checks.has_permissions(administrator=True)
@@ -27,7 +28,7 @@ class Admin(commands.Cog):
 
         if result != 0:
             await send_log(self.bot, f"Unable to restart. Exited with code {result}")
-    
+
     # Send a test message to the previously defined logs channel
     @discord.app_commands.checks.has_permissions(administrator=True)
     @discord.app_commands.command(name="test_logs", description="Test the logging channel.")
@@ -72,11 +73,6 @@ class Admin(commands.Cog):
             return
         entries = "\n".join(f"`{row[0]}` — {row[1][:80]}" for row in rows)
         await interaction.response.send_message(f"**Spam messages:**\n{entries}", ephemeral=True)
-    
-    def __init__(self, bot):
-        self.bot = bot
-        print("[DEBUG] Admin cog loaded")
-    
+
 async def setup(bot):
     await bot.add_cog(Admin(bot))
-
