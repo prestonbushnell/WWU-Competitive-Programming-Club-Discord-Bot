@@ -78,6 +78,7 @@ async def setup_hook():
     await bot.load_extension("cogs.verification")
     await bot.load_extension("cogs.welcome")
 
+    bot.tree.clear_commands(guild=guild)
     await bot.tree.sync(guild=guild)
     print("Slash commands synced.")
 
