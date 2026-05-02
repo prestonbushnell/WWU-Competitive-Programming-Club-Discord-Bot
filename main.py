@@ -80,6 +80,10 @@ async def setup_hook():
         except Exception as e:
             print(f"[ERROR] Failed to load {extension}: {e}")
 
+    # Clear global commands to remove duplicates
+    bot.tree.clear_commands(guild=None)
+    await bot.tree.sync(guild=None)
+
     bot.tree.copy_global_to(guild=guild)
     synced = await bot.tree.sync(guild=guild)
     print(f"Slash commands synced: {len(synced)} commands")
