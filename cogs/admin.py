@@ -72,10 +72,11 @@ class Admin(commands.Cog):
             return
         entries = "\n".join(f"`{row[0]}` — {row[1][:80]}" for row in rows)
         await interaction.response.send_message(f"**Spam messages:**\n{entries}", ephemeral=True)
-
+    
+    def __init__(self, bot):
+        self.bot = bot
+        print("[DEBUG] Welcome cog loaded")
+    
 async def setup(bot):
     await bot.add_cog(Admin(bot))
 
-def __init__(self, bot):
-    self.bot = bot
-    print("[DEBUG] Admin cog loaded")

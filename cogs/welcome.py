@@ -130,10 +130,10 @@ class Welcome(commands.Cog):
         )
 
         await send_log(self.bot, log_text)
-
+    def __init__(self, bot):
+        self.bot = bot
+        print("[DEBUG] Welcome cog loaded")
+        
 async def setup(bot):
     await bot.add_cog(Welcome(bot))
 
-def __init__(self, bot):
-    self.bot = bot
-    print("[DEBUG] Welcome cog loaded")

@@ -67,10 +67,10 @@ class Verification(commands.Cog):
             await send_log(self.bot, f"Assigned {role.name} role to {member.mention}")
         except Exception as e:
             await send_log(self.bot, f"Error assigning role: {e}")
-
+    def __init__(self, bot):
+        self.bot = bot
+        print("[DEBUG] Verification cog loaded")
+        
 async def setup(bot):
     await bot.add_cog(Verification(bot))
 
-def __init__(self, bot):
-    self.bot = bot
-    print("[DEBUG] Verification cog loaded")
