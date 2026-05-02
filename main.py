@@ -78,14 +78,10 @@ async def setup_hook():
     await bot.load_extension("cogs.verification")
     await bot.load_extension("cogs.welcome")
 
-    #DEBUG
     synced = await bot.tree.sync(guild=guild)
     print(f"Slash commands synced: {len(synced)} commands")
     for cmd in synced:
         print(f"  - /{cmd.name}")
-
-    await bot.tree.sync(guild=guild)
-    print("Slash commands synced.")
 
 @bot.event
 async def on_ready():
