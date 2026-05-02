@@ -79,6 +79,7 @@ async def setup_hook():
     await bot.load_extension("cogs.welcome")
 
     synced = await bot.tree.sync(guild=guild)
+    print(f"[DEBUG] Commands in tree: {[cmd.name for cmd in bot.tree.get_commands(guild=guild)]}")
     print(f"Slash commands synced: {len(synced)} commands")
     for cmd in synced:
         print(f"  - /{cmd.name}")
