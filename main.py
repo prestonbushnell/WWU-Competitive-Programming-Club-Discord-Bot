@@ -66,7 +66,7 @@ intents.members = True
 intents.message_content = True
 intents.messages = True
 
-bot = commands.Bot(command_prefix="/", intents=intents)
+bot = commands.Bot(command_prefix="/", intents=instents)
 bot.settings = load_settings()
 bot.save_settings = save_settings
 
@@ -74,12 +74,14 @@ bot.save_settings = save_settings
 async def setup_hook():
     guild = discord.Object(id=947639896292606013)
 
-    await bot.load_extension("cogs.admin")
-    await bot.load_extension("cogs.verification")
-    await bot.load_extension("cogs.welcome")
+    for extension in ["cogs.admin", "cogs.verification", "cogs.welcome"]:
+        try:
+            await bot.load_extension(extension)
+        except Exception as e:
+            print(f"[ERROR] Failed to load {extension}: {e}")
 
-    synced = await bot.tree.sync(guild=guild)
     print(f"[DEBUG] Commands in tree: {[cmd.name for cmd in bot.tree.get_commands(guild=guild)]}")
+    synced = await bot.tree.sync(guild=guild)
     print(f"Slash commands synced: {len(synced)} commands")
     for cmd in synced:
         print(f"  - /{cmd.name}")
