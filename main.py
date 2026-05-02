@@ -81,6 +81,7 @@ async def setup_hook():
             print(f"[ERROR] Failed to load {extension}: {e}")
 
     print(f"[DEBUG] Commands in tree: {[cmd.name for cmd in bot.tree.get_commands(guild=guild)]}")
+    print(f"[DEBUG] Global commands in tree: {[cmd.name for cmd in bot.tree.get_commands()]}")
     synced = await bot.tree.sync(guild=guild)
     print(f"Slash commands synced: {len(synced)} commands")
     for cmd in synced:
