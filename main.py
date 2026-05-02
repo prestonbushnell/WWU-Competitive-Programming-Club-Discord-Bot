@@ -66,7 +66,7 @@ intents.members = True
 intents.message_content = True
 intents.messages = True
 
-bot = commands.Bot(command_prefix="/", intents=instents)
+bot = commands.Bot(command_prefix="/", intents=intents)
 bot.settings = load_settings()
 bot.save_settings = save_settings
 
