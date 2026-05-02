@@ -10,16 +10,16 @@ class Admin(commands.Cog):
         print("[DEBUG] Admin cog loaded")
 
     # Set server channel that bot will log to
-    @discord.app_commands.checks.has_permissions(administrator=True)
-    @discord.app_commands.command(name="set_log_channel", description="Set the channel for bot logs.")
+    @app_commands.checks.has_permissions(administrator=True)
+    @app_commands.command(name="set_log_channel", description="Set the channel for bot logs.")
     async def set_log_channel(self, interaction: discord.Interaction, channel: discord.TextChannel):
         self.bot.settings["log_channel_id"] = channel.id
         self.bot.save_settings(self.bot.settings)
         await interaction.response.send_message(f"Log channel set to {channel.mention}.", ephemeral=True)
 
     # Restart the bot via server commands
-    @discord.app_commands.checks.has_permissions(administrator=True)
-    @discord.app_commands.command(name="restart_bot", description="Restart the bot service on the server.")
+    @app_commands.checks.has_permissions(administrator=True)
+    @app_commands.command(name="restart_bot", description="Restart the bot service on the server.")
     async def restart_bot(self, interaction: discord.Interaction):
         await interaction.response.send_message("Restarting bot...", ephemeral=True)
         await send_log(self.bot, f"Restart requested by {interaction.user} ({interaction.user.id})")
@@ -30,15 +30,15 @@ class Admin(commands.Cog):
             await send_log(self.bot, f"Unable to restart. Exited with code {result}")
 
     # Send a test message to the previously defined logs channel
-    @discord.app_commands.checks.has_permissions(administrator=True)
-    @discord.app_commands.command(name="test_logs", description="Test the logging channel.")
+    @app_commands.checks.has_permissions(administrator=True)
+    @app_commands.command(name="test_logs", description="Test the logging channel.")
     async def test_logs(self, interaction: discord.Interaction):
         await interaction.response.send_message("Sent test log!", ephemeral=True)
         await send_log(self.bot, "This is a test message")
 
     # Add a message to the spam database
-    @discord.app_commands.checks.has_permissions(administrator=True)
-    @discord.app_commands.command(name="add_spam", description="Add a message to the spam database.")
+    @app_commands.checks.has_permissions(administrator=True)
+    @app_commands.command(name="add_spam", description="Add a message to the spam database.")
     async def add_spam(self, interaction: discord.Interaction, content: str):
         conn = psycopg2.connect(os.getenv("DATABASE_URL"))
         with conn:
@@ -50,8 +50,8 @@ class Admin(commands.Cog):
         await interaction.response.send_message(f"Added to spam database: `{content[:100]}`", ephemeral=True)
 
     # Remove a message from the spam database
-    @discord.app_commands.checks.has_permissions(administrator=True)
-    @discord.app_commands.command(name="remove_spam", description="Remove a message from the spam database.")
+    @app_commands.checks.has_permissions(administrator=True)
+    @app_commands.command(name="remove_spam", description="Remove a message from the spam database.")
     async def remove_spam(self, interaction: discord.Interaction, content: str):
         conn = psycopg2.connect(os.getenv("DATABASE_URL"))
         with conn:
@@ -60,8 +60,8 @@ class Admin(commands.Cog):
         await interaction.response.send_message(f"Removed from spam database: `{content[:100]}`", ephemeral=True)
 
     # List all known spam messages
-    @discord.app_commands.checks.has_permissions(administrator=True)
-    @discord.app_commands.command(name="list_spam", description="List all known spam messages.")
+    @app_commands.checks.has_permissions(administrator=True)
+    @app_commands.command(name="list_spam", description="List all known spam messages.")
     async def list_spam(self, interaction: discord.Interaction):
         conn = psycopg2.connect(os.getenv("DATABASE_URL"))
         with conn:
