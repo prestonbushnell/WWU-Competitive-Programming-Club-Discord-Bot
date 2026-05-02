@@ -75,3 +75,7 @@ class Admin(commands.Cog):
 
 async def setup(bot):
     await bot.add_cog(Admin(bot))
+
+def __init__(self, bot):
+    self.bot = bot
+    print("[DEBUG] Admin cog loaded")

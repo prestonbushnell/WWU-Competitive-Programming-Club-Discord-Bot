@@ -70,3 +70,7 @@ class Verification(commands.Cog):
 
 async def setup(bot):
     await bot.add_cog(Verification(bot))
+
+def __init__(self, bot):
+    self.bot = bot
+    print("[DEBUG] Verification cog loaded")
